@@ -15,17 +15,26 @@ class Enemy:
 		# Get the Rect of the surface so we can use it for collisions and size etc.
 		self.rect = self.surface.get_rect()
 
+		self.last_x = 0
+		self.last_y = 0
+
 	def update(self): # Update its variables and draw
 		# Move the Enemy with the cursor
 		self.pos = pygame.mouse.get_pos()
 
+		self.get_speed()
 		self.draw()
 
 	def draw(self): # Draw the object
 		self.display.blit(self.surface, (self.pos[0] - (self.rect.width // 2), self.pos[1] - (self.rect.height // 2)))
 
 	def get_speed(self): # Return its speed
-		pass
+		target = pygame.math.Vector2(self.pos[0], self.pos[1])
+		start = pygame.math.Vector2(self.last_x, self.last_y)
+		self.last_x, self.last_y = self.pos
+
+		delta = target - start
+		print(delta)
 
 
 class Shooter:
@@ -104,12 +113,15 @@ class Bullet:
 		# The speed at which the bullet will travel at
 		self.speed = 15
 
+		self.last_x = 0
+		self.last_y = 0
+
 	def update(self): # Update its variables and draw
 		# Use Cos and Sin to determine what proportion to move in pixels in otder to move in a cerain angle by inputting the angle in radians
 		angle_in_radians = radians(self.angle)
 		self.pos = (self.pos[0] + (self.speed * cos(angle_in_radians)), self.pos[1] + (self.speed * sin(angle_in_radians)))
 
-
+		self.get_speed()
 		self.draw()
 
 	def draw(self): # Draw the object
@@ -124,7 +136,12 @@ class Bullet:
 			return False
 
 	def get_speed(self): # Return its speed
-		pass
+		target = pygame.math.Vector2(self.pos[0], self.pos[1])
+		start = pygame.math.Vector2(self.last_x, self.last_y)
+		self.last_x, self.last_y = self.pos
+
+		delta = target - start
+		print(delta)
 
 
 
