@@ -18,7 +18,10 @@ class Enemy:
 		self.last_x = 0
 		self.last_y = 0
 
-	def update(self): # Update its variables and draw
+		self.dt = 0
+
+	def update(self, dt): # Update its variables and draw
+		self.dt = dt
 		# Move the Enemy with the cursor
 		self.pos = pygame.mouse.get_pos()
 
@@ -158,15 +161,22 @@ shooter = Shooter(enemy) # Give the shooter a reference of the enemy instance so
 # Clock used later for limiting framarate
 clock = pygame.time.Clock()
 
+delta_tick = 0
+delta_time = 0
+
 while running: # Main game loop
 	for event in pygame.event.get(): # Check if the user has pressed the exit button
 		if event.type == pygame.QUIT:
 			running = False
 
+	delta_tick = pygame.time.get_ticks()
+
 	screen.fill("black") # Reset the screen color
 
 	shooter.update()
-	enemy.update()
+	enemy.update(delta_time)
 
 	clock.tick(60)
+	delta_time = pygame.time.get_ticks() - delta_tick
+	delta_tick = pygame.time.get_ticks()
 	pygame.display.flip() # Update the display
