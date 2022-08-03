@@ -13,37 +13,41 @@ class Enemy:
 		# Make a red square for the Enemy
 		self.surface = pygame.Surface((25, 25))
 		self.surface.fill("red")
-		# Get the Rect of the surface so we can use it for collisions and size etc.
+		# Get the Rect of the surface so we can use it for collisions and size etc
 		self.rect = self.surface.get_rect()
-
+		# Time between frames used for speed calculation
 		self.dt = 0
-
-		self.xVel = 100
+		# The velocity of the enemy and the direction its traveling
+		self.xVel = 200
 		self.xDir = 1
-
+		# Variables that will be used to store the last position of the enemy so we can later calculate its speed
 		self.last_x = 0
 		self.last_y = 0
-
+		# The length traveled between each frame
 		self.length_traveled = 0
 
 	def update(self, dt): # Update its variables and draw
 		self.dt = dt
 
+		# Whenever the enemy hits any of the sides of the screen, we invert its velocity and and xDir variable indicating in which direction the enemy is traveling
 		if self.pos[0] >= self.display.get_width() or self.pos[0] < 0:
 			self.xVel *= -1
 			self.xDir *= -1
 
+		# Before updating the position of the enemy we save its previous position so we can use the difference between the two to figure out the speed
 		self.last_x, self.last_y = self.pos
 		self.pos = (self.pos[0] + (self.xVel * self.dt), self.pos[1])
 
+		# Get the length that the enemy has traveled in a frame
 		self.length_traveled = sqrt((self.pos[0] - self.last_x)**2 + (self.pos[1] - self.last_y)**2)
 
 		self.draw()
 
 	def draw(self): # Draw the object
+		# Subtract the position with half of the rect width to center the object
 		self.display.blit(self.surface, (self.pos[0] - (self.rect.width // 2), self.pos[1] - (self.rect.height // 2)))
 
-	def get_speed(self): # Return its speed
+	def get_speed(self): # Return its speed in pixels / second
 		return self.length_traveled * 60 * self.dt
 
 
@@ -67,15 +71,16 @@ class Shooter:
 		self.bullet_list = []
 		# Angle of the gun
 		self.angle = 0
-
+		# The bullet we later will use to calculate the needed offset to hit the enemy
 		self.target_bullet = None
-
+		# The time between frames, used for speed calculations later in the code
 		self.dt = 0
 
 
 	def update(self, dt): # Update its variables and draw
 		self.dt = dt
-		if self.shoot_index < self.shoot_delay: # Shoot 
+		# Shoot at an interval
+		if self.shoot_index < self.shoot_delay: 
 			self.shoot_index += 1
 		else:
 			self.shoot_index = 0
@@ -97,7 +102,7 @@ class Shooter:
 				bullet.update(self.dt)
 
 	def get_angle_to_enemy(self): # Get the angle between the enemy and the shooter
-		# Calculate the difference between both the objects axi
+		# When the target bullet is None it typically means that the gun hasnt shot any bullets yet, so we just set the bullet speed to some arbitrary value, making sure its not 0 as to prevent division of 0 later in the code.
 		if self.target_bullet != None:
 			bullet_speed = self.target_bullet.get_speed()
 		else:
@@ -105,11 +110,13 @@ class Shooter:
 
 		distance = sqrt((self.enemy.pos[0] - self.pos[0])**2 + (self.enemy.pos[1] - self.pos[0])**2)
 
-		difference_x = self.enemy.pos[0] + ((distance / bullet_speed) * self.enemy.get_speed()) * self.enemy.xDir - self.pos[0] 
-		difference_y = self.enemy.pos[1] - self.pos[1]
-		# Plug the difference into this function 
+		# Calculate the proper angle to aim by calculating the distance the enemy will move in the time the bullet takes to travel the distance between the shooter and the enemy.
+		# The reason for the enemy.xDir variable is due to the offset only being applied in one direction, so when the enemy turns around, the direction needs to be multiplied negatively or posetively according to the x axis direction of the enemy so the bullet will hit properly
+		difference_x = self.enemy.pos[0] + self.enemy.rect.width // 2 * self.enemy.xDir + ((distance / bullet_speed) * self.enemy.get_speed()) * self.enemy.xDir - self.pos[0] 
+		difference_y = self.enemy.pos[1] + self.enemy.rect.height // 2 - self.pos[1]
+		# Plug the difference into this function to get the radians
 		angle = atan2(difference_y, difference_x)
-		# Convert to angle
+		# Convert the radians into an angle and return it
 		angle = degrees(angle)
 		return angle
 
@@ -120,7 +127,7 @@ class Shooter:
 
 class Bullet:
 	"""
-	Gets shot by the shooter and its speed is used to determine the offset needed to hit the enemy
+	Gets shot out by the shooter and its speed is used to determine the offset needed to hit the enemy
 	"""
 	def __init__(self, pos, angle):
 		self.display = pygame.display.get_surface() # Get the pygame screen so we can blit to it
@@ -134,13 +141,15 @@ class Bullet:
 		self.angle = angle
 		# The speed at which the bullet will travel at
 		self.speed = 25
-
+		# Parameters used later to calculate how far the bullet has moved every frame
 		self.last_x = 0
 		self.last_y = 0
 
 	def update(self, dt): # Update its variables and draw
 		# Use Cos and Sin to determine what proportion to move in pixels in otder to move in a cerain angle by inputting the angle in radians
 		self.dt = dt
+
+		# Convert the angle to radians so we can plot the radians into cos and sin functions to figure out at velocity in each axis the bullet has to move the move in the right angle
 		angle_in_radians = radians(self.angle)
 		self.last_x, self.last_y = self.pos
 		self.pos = (self.pos[0] + (self.speed * cos(angle_in_radians)), self.pos[1] + (self.speed * sin(angle_in_radians)))
@@ -160,7 +169,7 @@ class Bullet:
 		else:
 			return False
 
-	def get_speed(self): # Return its speed
+	def get_speed(self): # Return its speed in pixels / second
 		return self.length_traveled * 60 * self.dt
 
 
