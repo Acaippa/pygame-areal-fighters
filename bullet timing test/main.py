@@ -1,5 +1,6 @@
 import pygame
 from math import*
+import random
 # Figure out a way to make the enemies predict the offset needed in order to hit fast mobing planes.
 
 class Enemy:
@@ -8,36 +9,42 @@ class Enemy:
 	"""
 	def __init__(self):
 		self.display = pygame.display.get_surface() # Get the pygame screen so we can blit to it
-		self.pos = pygame.mouse.get_pos() # Set the initial position of the enemy to be the mouse position
+		self.pos = (10, 50)
 		# Make a red square for the Enemy
 		self.surface = pygame.Surface((25, 25))
 		self.surface.fill("red")
 		# Get the Rect of the surface so we can use it for collisions and size etc.
 		self.rect = self.surface.get_rect()
 
+		self.dt = 0
+
+		self.xVel = 100
+		self.xDir = 1
+
 		self.last_x = 0
 		self.last_y = 0
 
-		self.dt = 0
+		self.length_traveled = 0
 
 	def update(self, dt): # Update its variables and draw
 		self.dt = dt
-		# Move the Enemy with the cursor
-		self.pos = pygame.mouse.get_pos()
 
-		self.get_speed()
+		if self.pos[0] >= self.display.get_width() or self.pos[0] < 0:
+			self.xVel *= -1
+			self.xDir *= -1
+
+		self.last_x, self.last_y = self.pos
+		self.pos = (self.pos[0] + (self.xVel * self.dt), self.pos[1])
+
+		self.length_traveled = sqrt((self.pos[0] - self.last_x)**2 + (self.pos[1] - self.last_y)**2)
+
 		self.draw()
 
 	def draw(self): # Draw the object
 		self.display.blit(self.surface, (self.pos[0] - (self.rect.width // 2), self.pos[1] - (self.rect.height // 2)))
 
 	def get_speed(self): # Return its speed
-		target = pygame.math.Vector2(self.pos[0], self.pos[1])
-		start = pygame.math.Vector2(self.last_x, self.last_y)
-		self.last_x, self.last_y = self.pos
-
-		delta = target - start
-		print(delta)
+		return self.length_traveled * 60 * self.dt
 
 
 class Shooter:
@@ -61,9 +68,13 @@ class Shooter:
 		# Angle of the gun
 		self.angle = 0
 
+		self.target_bullet = None
+
+		self.dt = 0
 
 
-	def update(self): # Update its variables and draw
+	def update(self, dt): # Update its variables and draw
+		self.dt = dt
 		if self.shoot_index < self.shoot_delay: # Shoot 
 			self.shoot_index += 1
 		else:
@@ -79,14 +90,22 @@ class Shooter:
 
 	def update_bullets(self):
 		for bullet in self.bullet_list:
+			self.target_bullet = bullet
 			if bullet.is_out_of_bounds():
 				self.bullet_list.remove(bullet)
 			else:
-				bullet.update()
+				bullet.update(self.dt)
 
 	def get_angle_to_enemy(self): # Get the angle between the enemy and the shooter
 		# Calculate the difference between both the objects axi
-		difference_x = self.enemy.pos[0] - self.pos[0] 
+		if self.target_bullet != None:
+			bullet_speed = self.target_bullet.get_speed()
+		else:
+			bullet_speed = 1
+
+		distance = sqrt((self.enemy.pos[0] - self.pos[0])**2 + (self.enemy.pos[1] - self.pos[0])**2)
+
+		difference_x = self.enemy.pos[0] + ((distance / bullet_speed) * self.enemy.get_speed()) * self.enemy.xDir - self.pos[0] 
 		difference_y = self.enemy.pos[1] - self.pos[1]
 		# Plug the difference into this function 
 		angle = atan2(difference_y, difference_x)
@@ -114,17 +133,20 @@ class Bullet:
 		# The angle the bullet will travel at
 		self.angle = angle
 		# The speed at which the bullet will travel at
-		self.speed = 15
+		self.speed = 25
 
 		self.last_x = 0
 		self.last_y = 0
 
-	def update(self): # Update its variables and draw
+	def update(self, dt): # Update its variables and draw
 		# Use Cos and Sin to determine what proportion to move in pixels in otder to move in a cerain angle by inputting the angle in radians
+		self.dt = dt
 		angle_in_radians = radians(self.angle)
+		self.last_x, self.last_y = self.pos
 		self.pos = (self.pos[0] + (self.speed * cos(angle_in_radians)), self.pos[1] + (self.speed * sin(angle_in_radians)))
 
-		self.get_speed()
+		self.length_traveled = distance = sqrt((self.pos[0] - self.last_x)**2 + (self.pos[1] - self.last_y)**2)
+
 		self.draw()
 
 	def draw(self): # Draw the object
@@ -139,12 +161,7 @@ class Bullet:
 			return False
 
 	def get_speed(self): # Return its speed
-		target = pygame.math.Vector2(self.pos[0], self.pos[1])
-		start = pygame.math.Vector2(self.last_x, self.last_y)
-		self.last_x, self.last_y = self.pos
-
-		delta = target - start
-		print(delta)
+		return self.length_traveled * 60 * self.dt
 
 
 
@@ -173,10 +190,10 @@ while running: # Main game loop
 
 	screen.fill("black") # Reset the screen color
 
-	shooter.update()
+	shooter.update(delta_time)
 	enemy.update(delta_time)
 
 	clock.tick(60)
-	delta_time = pygame.time.get_ticks() - delta_tick
+	delta_time = (pygame.time.get_ticks() - delta_tick) / 1000
 	delta_tick = pygame.time.get_ticks()
 	pygame.display.flip() # Update the display
