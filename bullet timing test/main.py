@@ -48,7 +48,7 @@ class Enemy:
 		self.display.blit(self.surface, (self.pos[0] - (self.rect.width // 2), self.pos[1] - (self.rect.height // 2)))
 
 	def get_speed(self): # Return its speed in pixels / second
-		return self.length_traveled * 60 * self.dt
+		return self.length_traveled * 60
 
 
 class Shooter:
@@ -140,7 +140,7 @@ class Bullet:
 		# The angle the bullet will travel at
 		self.angle = angle
 		# The speed at which the bullet will travel at
-		self.speed = 25
+		self.speed = 1050
 		# Parameters used later to calculate how far the bullet has moved every frame
 		self.last_x = 0
 		self.last_y = 0
@@ -152,7 +152,7 @@ class Bullet:
 		# Convert the angle to radians so we can plot the radians into cos and sin functions to figure out at velocity in each axis the bullet has to move the move in the right angle
 		angle_in_radians = radians(self.angle)
 		self.last_x, self.last_y = self.pos
-		self.pos = (self.pos[0] + (self.speed * cos(angle_in_radians)), self.pos[1] + (self.speed * sin(angle_in_radians)))
+		self.pos = (self.pos[0] + (self.speed * cos(angle_in_radians) * self.dt), self.pos[1] + (self.speed * sin(angle_in_radians) * self.dt))
 
 		self.length_traveled = distance = sqrt((self.pos[0] - self.last_x)**2 + (self.pos[1] - self.last_y)**2)
 
@@ -170,7 +170,8 @@ class Bullet:
 			return False
 
 	def get_speed(self): # Return its speed in pixels / second
-		return self.length_traveled * 60 * self.dt
+		print(self.length_traveled)
+		return self.length_traveled * 60
 
 
 
