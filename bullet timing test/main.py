@@ -108,7 +108,7 @@ class Shooter:
 		else:
 			bullet_speed = 1
 
-		distance = sqrt((self.enemy.pos[0] - self.pos[0])**2 + (self.enemy.pos[1] - self.pos[0])**2)
+		distance = sqrt((self.pos[0] - self.enemy.pos[0])**2 + (self.pos[0] - self.enemy.pos[1])**2)
 
 		# Calculate the proper angle to aim by calculating the distance the enemy will move in the time the bullet takes to travel the distance between the shooter and the enemy.
 		# The reason for the enemy.xDir variable is due to the offset only being applied in one direction, so when the enemy turns around, the direction needs to be multiplied negatively or posetively according to the x axis direction of the enemy so the bullet will hit properly
