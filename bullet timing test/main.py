@@ -18,7 +18,7 @@ class Enemy:
 		# Time between frames used for speed calculation
 		self.dt = 0
 		# The velocity of the enemy and the direction its traveling
-		self.xVel = 200
+		self.xVel = 500
 		self.xDir = 1
 		# Variables that will be used to store the last position of the enemy so we can later calculate its speed
 		self.last_x = 0
@@ -154,7 +154,7 @@ class Bullet:
 		self.last_x, self.last_y = self.pos
 		self.pos = (self.pos[0] + (self.speed * cos(angle_in_radians) * self.dt), self.pos[1] + (self.speed * sin(angle_in_radians) * self.dt))
 
-		self.length_traveled = distance = sqrt((self.pos[0] - self.last_x)**2 + (self.pos[1] - self.last_y)**2)
+		self.length_traveled = sqrt((self.pos[0] - self.last_x)**2 + (self.pos[1] - self.last_y)**2)
 
 		self.draw()
 
