@@ -103,7 +103,7 @@ class Shooter:
 
 	def get_angle_to_enemy(self): # Get the angle between the enemy and the shooter
 		# When the target bullet is None it typically means that the gun hasnt shot any bullets yet, so we just set the bullet speed to some arbitrary value, making sure its not 0 as to prevent division of 0 later in the code.
-		if self.target_bullet != None:
+		if self.target_bullet != None and self.target_bullet.get_speed() != 0:
 			bullet_speed = self.target_bullet.get_speed()
 		else:
 			bullet_speed = 1
