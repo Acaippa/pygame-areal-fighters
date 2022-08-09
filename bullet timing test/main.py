@@ -140,7 +140,7 @@ class Bullet:
 		# The angle the bullet will travel at
 		self.angle = angle
 		# The speed at which the bullet will travel at
-		self.speed = 1050
+		self.speed = 3050
 		# Parameters used later to calculate how far the bullet has moved every frame
 		self.last_x = 0
 		self.last_y = 0
