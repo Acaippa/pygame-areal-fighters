@@ -1,0 +1,2 @@
+TILE_SIZE = 50
+PLANE_SIZE = 2
