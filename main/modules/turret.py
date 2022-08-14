@@ -1,6 +1,7 @@
 import pygame
 from settings import*
 from modules.bullet import*
+from math import*
 
 class Turret:
 	def __init__(self, pos, spawner):
@@ -42,7 +43,7 @@ class Turret:
 		self.delta_time = dt
 
 		if self.shoot_index >= self.shoot_delay:
-			self.bullet_list.append(Bullet(self.barrel_pos, self.angle))
+			self.bullet_list.append(Bullet(self.barrel_pos, self.angle, self.bullet_list))
 			self.shoot_index = 0
 		else:
 			self.shoot_index += 1 * self.delta_time
@@ -63,14 +64,24 @@ class Turret:
 		self.barrel_rect = self.barrel_rotated.get_rect(center=self.barrel_pos)
 
 
-	def find_angle_to_enemy(self): #! Note: this aiming code is a bit sketchy, it could cause problems later in development.
-		# enemy_x, enemy_y = self.target_plane.pos[0] + self.target_plane.rect.width // 2, self.target_plane.pos[1] + self.target_plane.rect.height // 2
-		enemy_x, enemy_y = self.target_plane.pos[0], self.target_plane.pos[1]
+	def find_angle_to_enemy(self):
+		enemy_x, enemy_y = self.target_plane.rect.center
 
-		distance = sqrt((self.pos[0] - enemy_x)**2 + (self.pos[1] - enemy_y)**2)
-		offset = (distance / self.target_bullet.get_speed()) * self.target_plane.get_speed()
+		bullet_speed = 0
 
-		self.angle = degrees(atan2(enemy_y - self.pos[1], - ((enemy_x - offset) - self.pos[0])))
+		if self.target_bullet.get_speed() == 0:
+			bullet_speed = 1
+		else:
+			bullet_speed = self.target_bullet.get_speed()
+
+		distance = sqrt((self.pos[0] - enemy_x)**2 + (self.pos[0] - enemy_y)**2)
+		offset = (distance / bullet_speed) * self.target_plane.get_speed()
+
+		difference_x = self.pos[0] - (enemy_x - offset)
+		difference_y = enemy_y - self.pos[1]
+
+		self.angle = atan2(difference_y, difference_x)
+		self.angle = degrees(self.angle)
 
 	def draw_bullets(self):
 		for bullet in self.bullet_list:
