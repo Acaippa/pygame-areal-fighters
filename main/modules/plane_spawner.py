@@ -18,6 +18,8 @@ class PlaneSpawner:
 
 		self.plane_timer = 5
 
+	def get_planes(self):
+		return self.plane_list
 
 	def get_first_plane(self):
 		if len(self.plane_list) > 0:
@@ -37,7 +39,7 @@ class PlaneSpawner:
 		if self.plane_tick >= self.plane_timer:
 			x = self.display_surface.get_width() + random.randint(50, 150)
 			y = random.randint(200, 500)
-			self.plane_list.append(random.choice(self.planes)((x, y)))
+			self.plane_list.append(random.choice(self.planes)((x, y), self))
 			self.plane_tick = 0
 
 		else:

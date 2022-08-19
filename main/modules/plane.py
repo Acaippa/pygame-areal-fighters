@@ -3,7 +3,7 @@ from settings import*
 from math import*
 
 class Plane:
-	def __init__(self, pos):
+	def __init__(self, pos, spawner):
 		self.display_surface = pygame.display.get_surface()
 		self.image = pygame.image.load("images/plane01.png").convert_alpha()
 
@@ -15,15 +15,27 @@ class Plane:
 
 		self.delta_time = 0
 
-		self.rect = self.image.get_rect()
-		self.rect.center = self.pos
+		self.rect = self.image.get_rect(center=self.pos)
 
 		self.last_x, self.last_y = 0, 0
 
 		self.distance_traveled = 0
 
+		self.health = 100
+
+		self.spawner = spawner
+
 	def get_speed(self):
 		return self.distance_traveled * 60
+
+	def remove_self(self):
+		self.spawner.plane_list.remove(self)
+
+	def on_collision(self):
+		if self.health - 10 < 0:
+			self.remove_self()
+		else:	
+			self.health -= 10
 
 	def update(self, dt):
 		self.delta_time = dt
@@ -37,4 +49,5 @@ class Plane:
 		self.draw()
 
 	def draw(self):
-		self.display_surface.blit(self.image, (self.rect[0], self.rect[1] - self.image.get_height() // 2))
+		self.display_surface.blit(self.image, (self.rect[0], self.rect[1] - self.image.get_height() / 2))
+		#self.display_surface.blit(self.image, (self.rect[0], self.rect[1]))

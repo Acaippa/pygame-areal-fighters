@@ -2,6 +2,7 @@ import pygame
 from settings import*
 from modules.plane_spawner import*
 from modules.turret import*
+from modules.collision_handler import*
 
 class MainGame:
 	def __init__(self, parent):
@@ -23,6 +24,8 @@ class MainGame:
 	def update(self, dt):
 		self.delta_time = dt
 		self.draw_background()
+
+		CollisionHandler(self.plane_spawner.get_planes(), self.turret.get_bullets())
 
 		self.plane_spawner.update(self.delta_time)
 

@@ -54,6 +54,9 @@ class Turret:
 
 		self.draw_bullets()
 
+	def get_bullets(self):
+		return self.bullet_list
+
 	def aim(self):
 		self.target_plane = self.plane_spawner.get_first_plane()
 
