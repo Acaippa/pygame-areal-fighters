@@ -2,7 +2,7 @@ import pygame
 from PIL import ImageColor
 
 class Button:
-	def __init__(self, parent, text, pos, cmd, color="#ffffff", background="#222222", margin=10):
+	def __init__(self, parent, text, pos, cmd, color="#ffffff", background="#222222", margin=10, **kwargs):
 		self.display_surface = pygame.display.get_surface()
 		# self.font = pygame.font.SysFont('Segoe UI Normal', 40)
 		self.font = pygame.font.Font('fonts/upheavtt.ttf', 40)
@@ -20,6 +20,8 @@ class Button:
 
 		self.highlight = 0
 
+		self.edit = kwargs.get("edit", False)
+
 		self.rendered_font = self.font.render(self.text, True, self.color)
 
 		if pos[0] == "center":
@@ -34,6 +36,9 @@ class Button:
 		self.on_hover()
 		self.on_click()
 
+		if self.edit:
+			self.edit_move()
+
 		self.rendered_font = self.font.render(self.text, True, self.color)
 		self.draw()
 
@@ -47,6 +52,29 @@ class Button:
 			self.hover = False
 			self.highlight = 0
 
+	def edit_move(self): # Move the button with the arrows
+		keys = pygame.key.get_pressed()
+
+		spd = 1
+
+		# Move faster
+		if keys[pygame.K_LSHIFT]:
+			spd = 10
+
+		if keys[pygame.K_RIGHT]:
+			self.pos = self.pos[0] + spd, self.pos[1]
+
+		if keys[pygame.K_LEFT]:
+			self.pos = self.pos[0] - spd, self.pos[1]
+
+		if keys[pygame.K_UP]:
+			self.pos = self.pos[0], self.pos[1] - spd
+
+		if keys[pygame.K_DOWN]:
+			self.pos = self.pos[0], self.pos[1] + spd
+
+		self.rect.center = self.pos
+
 	def on_click(self):
 		pressed = pygame.mouse.get_pressed()
 
@@ -56,15 +84,18 @@ class Button:
 
 		if self.hover and pressed[0] == False and self.click_check:
 			self.click_check = False
+
+			# If the button is being placed for the first time we can click to show what its coords are.
+			if self.edit:
+				print(self.pos)
+
 			try:
 				self.cmd()
 			except Exception as e:
 				print(e)
 
-
 		if self.hover == False:
 			self.click_check = False
-
 
 	def draw(self):
 		rgbList = [0, 0, 0]
@@ -77,6 +108,7 @@ class Button:
 				rgbList[i] = 255
 			else:
 				rgbList[i] = rgbColor[i] + self.highlight
+
 		pygame.draw.rect(self.display_surface, (rgbList[0], rgbList[1], rgbList[2]), self.rect, border_radius=5)
 		self.display_surface.blit(self.rendered_font, (self.pos[0] - self.rendered_font.get_width()//2, self.pos[1] - self.rendered_font.get_height()//2))
 

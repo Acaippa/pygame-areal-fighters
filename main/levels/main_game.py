@@ -3,6 +3,7 @@ from settings import*
 from modules.plane_spawner import*
 from modules.turret import*
 from modules.collision_handler import*
+from modules.button import*
 
 class MainGame:
 	def __init__(self, parent):
@@ -19,6 +20,10 @@ class MainGame:
 
 		self.plane_spawner = PlaneSpawner()
 
+		self.button_list = []
+
+		self.shop = Button(self, "shop", (10, self.display_surface.get_height()), "d", edit=True)
+
 		self.turret = Turret((1000, self.display_surface.get_height() - self.ground_tile.get_height()), self.plane_spawner)
 
 	def update(self, dt):
@@ -30,6 +35,8 @@ class MainGame:
 		self.plane_spawner.update(self.delta_time)
 
 		self.turret.update(self.delta_time)
+
+		self.shop.update()
 
 		self.draw()
 
