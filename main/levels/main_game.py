@@ -22,21 +22,15 @@ class MainGame:
 
 		self.button_list = []
 
-		self.shop = Button(self, "shop", (10, self.display_surface.get_height()), "d", edit=True)
-
-		self.turret = Turret((1000, self.display_surface.get_height() - self.ground_tile.get_height()), self.plane_spawner)
+		self.shop_button = Button(self, "shop", (77, 1041), "d", edit=True)
 
 	def update(self, dt):
 		self.delta_time = dt
 		self.draw_background()
 
-		CollisionHandler(self.plane_spawner.get_planes(), self.turret.get_bullets())
-
 		self.plane_spawner.update(self.delta_time)
 
-		self.turret.update(self.delta_time)
-
-		self.shop.update()
+		self.shop_button.update()
 
 		self.draw()
 
