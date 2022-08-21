@@ -3,7 +3,10 @@ from PIL import ImageColor
 
 class Button:
 	def __init__(self, parent, text, pos, cmd, color="#ffffff", background="#222222", margin=10, **kwargs):
-		self.display_surface = pygame.display.get_surface()
+		if kwargs.get("surface", None) == None:
+			self.display_surface = pygame.display.get_surface()
+		else:
+			self.display_surface = kwargs.get("surface", None)
 		# self.font = pygame.font.SysFont('Segoe UI Normal', 40)
 		self.font = pygame.font.Font('fonts/upheavtt.ttf', 40)
 
@@ -27,6 +30,17 @@ class Button:
 		if pos[0] == "center":
 			self.pos = self.display_surface.get_width() // 2, self.pos[1]
 
+		self.get_custom_rect()
+
+		self.move_amount_out = 50
+		# Make the move index the negative half of the move amount. 
+		self.move_index_out = -self.move_amount_out / 2
+
+		self.move_amount_in = 50
+		# Make the move index the negative half of the move amount. 
+		self.move_index_in = -self.move_amount_in / 2
+
+	def get_custom_rect(self):
 		self.rect = self.rendered_font.get_rect()
 		self.rect.width += self.margin * 2
 		self.rect.height += self.margin
@@ -41,6 +55,24 @@ class Button:
 
 		self.rendered_font = self.font.render(self.text, True, self.color)
 		self.draw()
+
+
+	def hide_self(self, direction):
+		if direction == "r":
+			if self.move_index_out < self.move_amount_out:
+				velocity = (-self.move_index_out ** 3) * 0.001
+				self.pos = self.pos[0] + velocity, self.pos[1]
+				self.move_index_out += 7
+
+
+	def show_self(self, direction="r"):
+		if direction == "r":
+			if self.move_index_in < self.move_amount_in:
+				velocity = (self.move_index_in ** 3) * 0.001
+				self.pos = self.pos[0] + velocity, self.pos[1]
+				self.move_index_in += 7
+
+
 
 	def on_hover(self):
 		mouse = pygame.mouse.get_pos()
@@ -98,6 +130,8 @@ class Button:
 			self.click_check = False
 
 	def draw(self):
+		self.get_custom_rect()
+
 		rgbList = [0, 0, 0]
 
 		rgbColor = ImageColor.getcolor(self.background_color, "RGB")

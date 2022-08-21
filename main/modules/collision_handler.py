@@ -7,7 +7,6 @@ class CollisionHandler:
 			for bullet in bullets:
 				collision = pygame.Rect.colliderect(plane.rect, bullet.rect)
 
-				 # Check if the bullet hits the plane between frames.
 				if collision:
 					plane.on_collision()
 					bullet.on_collision()

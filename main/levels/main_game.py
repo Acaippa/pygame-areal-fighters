@@ -4,6 +4,7 @@ from modules.plane_spawner import*
 from modules.turret import*
 from modules.collision_handler import*
 from modules.button import*
+from menus.shop_menu import*
 
 class MainGame:
 	def __init__(self, parent):
@@ -22,7 +23,14 @@ class MainGame:
 
 		self.button_list = []
 
-		self.shop_button = Button(self, "shop", (77, 1041), "d", edit=True)
+		self.hide_button_bool = False
+
+		self.shop_button = Button(self, "shop", (77, 1041), self.activate_hide_button)
+
+		self.shop_menu = ShopMenu()
+
+	def activate_hide_button(self):
+		self.hide_button_bool = True
 
 	def update(self, dt):
 		self.delta_time = dt
@@ -30,7 +38,13 @@ class MainGame:
 
 		self.plane_spawner.update(self.delta_time)
 
+		self.shop_menu.update(self.delta_time)
+
 		self.shop_button.update()
+
+		if self.hide_button_bool:
+			self.shop_button.hide_self("r")
+			self.shop_menu.show_self("r")
 
 		self.draw()
 
