@@ -17,7 +17,7 @@ class ShopMenu:
 
 		self.button_list = []
 
-		self.close_button = Button(self, "X", (354, 31), "d", surface=self.surface)
+		self.close_button = Button(self, "X", (354, 31), "d", surface=self.surface, float=True)
 
 	def show_self(self, direction):
 		if direction == "r":

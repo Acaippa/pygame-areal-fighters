@@ -4,13 +4,17 @@ from PIL import ImageColor
 class Button:
 	def __init__(self, parent, text, pos, cmd, color="#ffffff", background="#222222", margin=10, **kwargs):
 		if kwargs.get("surface", None) == None:
+			self.float_bool = False # If the button is on any surface other than the main surface.
 			self.display_surface = pygame.display.get_surface()
 		else:
-			self.display_surface = kwargs.get("surface", None)
-		# self.font = pygame.font.SysFont('Segoe UI Normal', 40)
+			self.display_surface = kwargs.get("surface")
+			self.float_bool = True
+
 		self.font = pygame.font.Font('fonts/upheavtt.ttf', 40)
 
 		parent.button_list.append(self)
+
+		self.parent = parent
 
 		self.text = text
 		self.color = color
@@ -75,7 +79,12 @@ class Button:
 
 
 	def on_hover(self):
-		mouse = pygame.mouse.get_pos()
+		# If the button is on another surface, subtract the position of that surface to get the position of the mouse relative to the main display.
+		if self.float_bool:
+			mouse = pygame.mouse.get_pos()[0] - self.parent.pos[0], pygame.mouse.get_pos()[1] - self.parent.pos[1]
+		else:
+			mouse = pygame.mouse.get_pos()
+
 		collide = self.rect.collidepoint(mouse)
 		if collide:
 			self.hover = True
@@ -131,7 +140,6 @@ class Button:
 
 	def draw(self):
 		self.get_custom_rect()
-
 		rgbList = [0, 0, 0]
 
 		rgbColor = ImageColor.getcolor(self.background_color, "RGB")
@@ -143,7 +151,7 @@ class Button:
 			else:
 				rgbList[i] = rgbColor[i] + self.highlight
 
-		pygame.draw.rect(self.display_surface, (rgbList[0], rgbList[1], rgbList[2]), self.rect, border_radius=5)
+		print(pygame.draw.rect(self.display_surface, (rgbList[0], rgbList[1], rgbList[2]), self.rect, border_radius=5), self.rect)
 		self.display_surface.blit(self.rendered_font, (self.pos[0] - self.rendered_font.get_width()//2, self.pos[1] - self.rendered_font.get_height()//2))
 
 
